@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Horse Colic — Predictor Clínico</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ══════════════════ HEADER ══════════════════ -->
+<header>
+  <div class="logo-icon">🐴</div>
+  <div>
+    <h1>Horse Colic Predictor</h1>
+    <p>Sistema de predicción clínica — Regresión Logística &amp; Red Neuronal</p>
+  </div>
+</header>
+
+<!-- ══════════════════ TABS ══════════════════ -->
+<nav class="nav-tabs">
+  <button class="tab-btn active" onclick="switchTab('individual', this)">🔬 Predicción Individual</button>
+  <button class="tab-btn"        onclick="switchTab('batch', this)">📊 Predicción por Lotes</button>
+</nav>
+
+<main>
+
+  <!-- ══ TAB 1: PREDICCIÓN INDIVIDUAL ══════════════════════════ -->
+  <section id="tab-individual" class="tab-panel active">
+
+    <!-- Selector de modelo -->
+    <div class="model-selector">
+      <label>Modelo:</label>
+      <button class="model-btn active" onclick="setModel('lr', this)">Regresión Logística</button>
+      <button class="model-btn"        onclick="setModel('nn', this)">Red Neuronal</button>
+    </div>
+
+    <!-- Signos vitales -->
+    <h2 class="section-title">Signos Vitales</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label>¿Cirugía previa?</label>
+        <select id="f1">
+          <option value="1">Sí (1)</option>
+          <option value="2" selected>No (2)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Edad</label>
+        <select id="f2">
+          <option value="1" selected>Adulto (1)</option>
+          <option value="2">Joven &lt;6 meses (2)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>N° Historia Clínica</label>
+        <input type="number" id="f3" value="530101" placeholder="ej. 530101">
+      </div>
+      <div class="field">
+        <label>Temperatura Rectal (°C)</label>
+        <input type="number" id="f4" value="38.2" step="0.1" placeholder="Normal: 37.8">
+      </div>
+      <div class="field">
+        <label>Pulso (lpm)</label>
+        <input type="number" id="f5" value="64" placeholder="Normal: 30–40">
+      </div>
+      <div class="field">
+        <label>Frecuencia Respiratoria</label>
+        <input type="number" id="f6" value="24" placeholder="Normal: 8–10">
+      </div>
+    </div>
+
+    <!-- Signos clínicos -->
+    <h2 class="section-title">Signos Clínicos</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label>Temperatura Extremidades</label>
+        <select id="f7">
+          <option value="1">Normal (1)</option>
+          <option value="2">Cálida (2)</option>
+          <option value="3" selected>Fría (3)</option>
+          <option value="4">Muy fría (4)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Pulso Periférico</label>
+        <select id="f8">
+          <option value="1">Normal (1)</option>
+          <option value="2" selected>Aumentado (2)</option>
+          <option value="3">Reducido (3)</option>
+          <option value="4">Ausente (4)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Membranas Mucosas</label>
+        <select id="f9">
+          <option value="1">Rosa normal (1)</option>
+          <option value="2">Rosa brillante (2)</option>
+          <option value="3" selected>Rosa pálido (3)</option>
+          <option value="4">Cianótico pálido (4)</option>
+          <option value="5">Rojo brillante (5)</option>
+          <option value="6">Cianótico oscuro (6)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tiempo Relleno Capilar</label>
+        <select id="f10">
+          <option value="1" selected>&lt; 3 segundos (1)</option>
+          <option value="2">≥ 3 segundos (2)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Nivel de Dolor</label>
+        <select id="f11">
+          <option value="1">Alerta, sin dolor (1)</option>
+          <option value="2">Deprimido (2)</option>
+          <option value="3" selected>Dolor leve intermitente (3)</option>
+          <option value="4">Dolor severo intermitente (4)</option>
+          <option value="5">Dolor severo continuo (5)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Peristaltismo</label>
+        <select id="f12">
+          <option value="1">Hipermotilidad (1)</option>
+          <option value="2">Normal (2)</option>
+          <option value="3" selected>Hipomotilidad (3)</option>
+          <option value="4">Ausente (4)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Examen abdominal -->
+    <h2 class="section-title">Examen Abdominal</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label>Distensión Abdominal</label>
+        <select id="f13">
+          <option value="1">Ninguna (1)</option>
+          <option value="2" selected>Leve (2)</option>
+          <option value="3">Moderada (3)</option>
+          <option value="4">Severa (4)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Intubación Nasogástrica</label>
+        <select id="f14">
+          <option value="1">Ninguna (1)</option>
+          <option value="2" selected>Ligera (2)</option>
+          <option value="3">Significativa (3)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Reflujo Nasogástrico</label>
+        <select id="f15">
+          <option value="1">Ninguno (1)</option>
+          <option value="2" selected>&gt;1 litro (2)</option>
+          <option value="3">&lt;1 litro (3)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>pH Reflujo Nasogástrico</label>
+        <input type="number" id="f16" value="5.0" step="0.1" placeholder="ej. 5.0">
+      </div>
+      <div class="field">
+        <label>Heces Rectales</label>
+        <select id="f17">
+          <option value="1">Normal (1)</option>
+          <option value="2">Aumentadas (2)</option>
+          <option value="3" selected>Reducidas (3)</option>
+          <option value="4">Ausentes (4)</option>
+          <option value="5">Sin heces (5)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Abdomen (palpación rectal)</label>
+        <select id="f18">
+          <option value="1">Normal (1)</option>
+          <option value="2">Intestino delgado distendido (2)</option>
+          <option value="3">Intestino grueso distendido (3)</option>
+          <option value="4" selected>Intestino delgado impactado (4)</option>
+          <option value="5">Colon impactado (5)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Laboratorio -->
+    <h2 class="section-title">Laboratorio</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label>Volumen Celular Empaquetado (%)</label>
+        <input type="number" id="f19" value="45.0" step="0.5" placeholder="ej. 45.0">
+      </div>
+      <div class="field">
+        <label>Proteínas Totales (g/dL)</label>
+        <input type="number" id="f20" value="7.5" step="0.1" placeholder="ej. 7.5">
+      </div>
+      <div class="field">
+        <label>Apariencia Fluido Abdominal</label>
+        <select id="f21">
+          <option value="1">Claro (1)</option>
+          <option value="2" selected>Turbio (2)</option>
+          <option value="3">Serosanguinoso (3)</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Proteínas Fluido Abdominal (g/dL)</label>
+        <input type="number" id="f22" value="2.25" step="0.05" placeholder="ej. 2.5">
+      </div>
+    </div>
+
+    <button class="predict-btn" onclick="predictIndividual()">⚡ Predecir</button>
+
+    <!-- Resultado -->
+    <div class="result-card" id="result-card">
+      <div class="result-header">
+        <div class="result-badge" id="result-badge"></div>
+        <span class="model-tag" id="result-model-tag"></span>
+      </div>
+      <p class="result-desc" id="result-desc"></p>
+      <div class="prob-bar-wrap">
+        <div class="prob-label">
+          <span>Probabilidad — Requiere Cirugía</span>
+          <span id="prob-surgery-val"></span>
+        </div>
+        <div class="prob-bar">
+          <div class="prob-fill surgery" id="prob-surgery-bar"></div>
+        </div>
+      </div>
+      <div class="prob-bar-wrap">
+        <div class="prob-label">
+          <span>Probabilidad — No Requiere Cirugía</span>
+          <span id="prob-no-surgery-val"></span>
+        </div>
+        <div class="prob-bar">
+          <div class="prob-fill no-surgery" id="prob-no-surgery-bar"></div>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══ TAB 2: PREDICCIÓN POR LOTES ═══════════════════════════ -->
+  <section id="tab-batch" class="tab-panel">
+
+    <!-- Selector de modelo -->
+    <div class="model-selector">
+      <label>Modelo:</label>
+      <button class="model-btn active" onclick="setBatchModel('lr', this)">Regresión Logística</button>
+      <button class="model-btn"        onclick="setBatchModel('nn', this)">Red Neuronal</button>
+    </div>
+
+    <div class="info-box">
+      ℹ️ Sube un archivo CSV con 22 columnas (atributos 1–22 del Horse Colic, sin encabezado, usando <strong>?</strong> para valores faltantes).
+      Para obtener métricas, incluye también la columna 24 (attr_24: 1=cirugía, 2=no cirugía).
+    </div>
+
+    <!-- Zona de carga -->
+    <div class="batch-upload-area" id="upload-area"
+         onclick="document.getElementById('file-input').click()"
+         ondrop="handleDrop(event)"
+         ondragover="handleDragOver(event)"
+         ondragleave="handleDragLeave()">
+      <input type="file" id="file-input" accept=".csv,.data,.txt" onchange="handleFileSelect(event)">
+      <div class="upload-icon">📂</div>
+      <h3>Arrastra tu archivo aquí</h3>
+      <p>o haz clic para seleccionar — formatos: .csv, .data, .txt</p>
+    </div>
+
+    <!-- Info del archivo cargado -->
+    <div class="file-info" id="file-info">
+      <span>📄</span>
+      <div class="file-details">
+        <div class="file-name" id="file-name-display"></div>
+        <div class="file-meta" id="file-meta-display"></div>
+      </div>
+      <button class="remove-file" onclick="removeFile()">✕</button>
+    </div>
+
+    <button class="predict-btn" id="batch-predict-btn" onclick="predictBatch()" style="display:none">
+      ⚡ Procesar Lote
+    </button>
+
+    <!-- Resultados batch -->
+    <div class="batch-results" id="batch-results">
+
+      <h2 class="section-title" style="margin-top:28px">Métricas de Desempeño</h2>
+      <div class="metrics-row" id="metrics-row"></div>
+
+      <div class="two-col">
+        <!-- Matriz de confusión -->
+        <div class="cm-section">
+          <div class="cm-title">Matriz de Confusión</div>
+          <div class="cm-grid" id="cm-grid"></div>
+          <div class="cm-legend">
+            <div class="legend-item"><div class="legend-dot" style="background:var(--safe)"></div>Verdaderos Positivos (TP)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--accent2)"></div>Verdaderos Negativos (TN)</div>
+            <div class="legend-item"><div class="legend-dot" style="background:var(--danger)"></div>Falsos (FP / FN)</div>
+          </div>
+        </div>
+
+        <!-- Reporte por clase -->
+        <div class="cm-section">
+          <div class="cm-title">Reporte por Clase</div>
+          <table class="report-table">
+            <thead>
+              <tr>
+                <th>Clase</th>
+                <th>Precisión</th>
+                <th>Recall</th>
+                <th>F1</th>
+                <th>Soporte</th>
+              </tr>
+            </thead>
+            <tbody id="report-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tabla de predicciones individuales -->
+      <h2 class="section-title">Predicciones por Caso</h2>
+      <div class="preview-table-wrap">
+        <table class="preview-table" id="preview-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Temp. Rectal</th>
+              <th>Pulso</th>
+              <th>Dolor</th>
+              <th>Predicción</th>
+              <th>Prob. Cirugía</th>
+              <th id="real-col-header"  style="display:none">Real</th>
+              <th id="match-col-header" style="display:none">✓</th>
+            </tr>
+          </thead>
+          <tbody id="preview-body"></tbody>
+        </table>
+      </div>
+
+    </div><!-- /batch-results -->
+
+  </section>
+
+</main>
+
+<!-- ══════════════════ SCRIPTS ══════════════════ -->
+<!-- Modelos (deben cargarse antes que app.js) -->
+<script src="models/lr_model.js"></script>
+<script src="models/nn_model.js"></script>
+<!-- Lógica de la aplicación -->
+<script src="app.js"></script>
+
+</body>
+</html>
